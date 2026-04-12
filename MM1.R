@@ -60,7 +60,7 @@ estimate_pj <- function(times, states, max_state = 10){
 }
 
 # -------------------------------
-# 3. Theoretical probabilities
+#  Theoretical probabilities
 # -------------------------------
 theoretical_pj <- function(lambda, mu, max_state = 10){
   rho <- lambda / mu
@@ -69,7 +69,7 @@ theoretical_pj <- function(lambda, mu, max_state = 10){
 }
 
 # -------------------------------
-# 4. Run Simulation
+#  Run Simulation
 # -------------------------------
 set.seed(42)
 
@@ -83,7 +83,7 @@ p_hat <- estimate_pj(sim$times, sim$states, max_state)
 p_true <- theoretical_pj(lambda, mu, max_state)
 
 # -------------------------------
-# 5. Compare Results
+#  Compare Results
 # -------------------------------
 results <- data.frame(
   j = 0:max_state,
@@ -94,7 +94,7 @@ results <- data.frame(
 print(results)
 
 # -------------------------------
-# 6. Plot
+#  Plot
 # -------------------------------
 plot(0:max_state, p_hat, type="b", pch=16,
      xlab="State j", ylab="Probability",
@@ -109,7 +109,47 @@ legend("topright",
 
 
 # -------------------------------
-# 7. Error Check 
+#  Error Check 
 # -------------------------------
 cat("\nMax absolute error:",
     max(abs(p_hat - p_true)), "\n")
+
+# -------------------------------
+# 3. Estimate E[N]
+# -------------------------------
+estimate_EN <- function(times, states){
+  
+  durations <- diff(c(0, times))
+  total_time <- sum(durations)
+  
+  EN_hat <- sum(states * durations) / total_time
+  
+  return(EN_hat)
+}
+
+# -------------------------------
+# Theoretical value
+# -------------------------------
+theoretical_EN <- function(lambda, mu){
+  return(lambda / (mu - lambda))
+}
+
+# -------------------------------
+# Run simulation
+# -------------------------------
+set.seed(42)
+
+lambda <- 2
+mu <- 3
+
+sim <- simulate_mm1_states(lambda, mu, max_events = 100000)
+
+EN_sim <- estimate_EN(sim$times, sim$states)
+EN_theory <- theoretical_EN(lambda, mu)
+
+# -------------------------------
+# Output
+# -------------------------------
+cat("Simulated E[N]:", EN_sim, "\n")
+cat("Theoretical E[N]:", EN_theory, "\n")
+cat("Absolute Error:", abs(EN_sim - EN_theory), "\n")
